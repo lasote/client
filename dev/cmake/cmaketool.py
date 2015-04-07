@@ -85,16 +85,11 @@ class CMakeTool(object):
         if name and name != current_toolchain:  # Toolchain change
             toolchain_path = os.path.join(self.bii_paths.bii, '%s_toolchain.cmake' % name)
             if not os.path.exists(toolchain_path):
-                if name == "arduino":
-                    raise BiiException("Arduino toolchain not found, please execute"
-                                       " 'bii arduino:settings' first")
-                elif name == "rpi":
-                    raise BiiException("Raspberry Pi toolchain not found, please execute"
-                                       " 'bii rpi:settings' first")
-                else:
-                    raise BiiException("CMake %s toolchain not found" % toolchain_path)
-            self.user_io.out.warn('Toolchain changed to %s, regenerating project' % toolchain_path)
-            self.hive_disk_image.delete_build_folder()
+                self._raise_not_found_toolchain_message(name, toolchain_path)
+            else:
+                self.user_io.out.warn('Toolchain changed to %s, '
+                                      'regenerating project' % toolchain_path)
+                self.hive_disk_image.delete_build_folder()
         elif name is None:  # Remove toolchain
             toolchain_path = None
             self.user_io.out.warn('Removing toolchain, regenerating project')
@@ -110,6 +105,19 @@ class CMakeTool(object):
         settings.cmake.toolchain = name
         self.hive_disk_image.settings = settings
         return toolchain_path
+
+    def _raise_not_found_toolchain_message(self, name, toolchain_path):
+
+        messages = {"arduino": "Arduino toolchain not found "
+                               "please execute 'bii arduino:settings' first",
+                    "rpi": "Raspberry Pi toolchain not found, please execute "
+                           "'bii rpi:settings' first",
+                    "android": "Android toolchain not found, please execute "
+                           "'bii android:settings' first"}
+
+        default_message = "CMake %s toolchain not found" % toolchain_path
+        message = messages.get(name, default_message)
+        raise BiiException(message)
 
     def _handle_generator(self, generator):
         """ update current settings with the arg passed generator, or define a

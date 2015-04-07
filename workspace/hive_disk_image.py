@@ -196,6 +196,7 @@ class HiveDiskImage(object):
         """Get the blocks based on disk, not in processed hive"""
         result = {}
         root_block = self._bii_paths.root_block
+
         if os.path.exists(self._bii_paths.blocks):
             for username in os.listdir(self._bii_paths.blocks):
                 for name in os.listdir(os.path.join(self._bii_paths.blocks, username)):

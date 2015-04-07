@@ -65,8 +65,7 @@ def arduino_settings_wizard(user_io, settings):
     _arduino_sdk_wizard(user_io, settings.arduino)
     _get_board(user_io, settings.arduino)
     ports_need_reset = get_boards_need_reset(settings.arduino.sdk, settings.arduino.version)
-    settings.arduino.automatic_reset = True if settings.arduino.board in ports_need_reset \
-                                            else None
+    settings.arduino.automatic_reset = True if settings.arduino.board in ports_need_reset else None
     settings.arduino.port = refresh_port(user_io,
                                          settings.arduino.port,
                                          reset=settings.arduino.automatic_reset,

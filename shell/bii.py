@@ -14,6 +14,7 @@ from biicode.common.output_stream import OutputStream, INFO
 from biicode.client.setups.setup_commands import SetupCommands
 from biicode.client.dev.hardware.raspberry_pi.rpitoolchain import RPiToolChain
 from biicode.client.dev.hardware.arduino.arduinotoolchain import ArduinoToolChain
+from biicode.client.dev.hardware.android.androidtoolchain import AndroidToolChain
 from biicode.client.shell.updates_manager import UpdatesStore, UpdatesManager
 from biicode.common.model.server_info import ClientVersion
 from biicode.client.exception import ObsoleteClient
@@ -36,6 +37,7 @@ class Bii(object):
                                                      RPiToolChain,
                                                      SetupCommands,
                                                      ArduinoToolChain,
+                                                     AndroidToolChain,
                                                      NodeToolChain])
         self.executor = ToolExecutor(self, toolcatalog)
         self._biiapi = None
