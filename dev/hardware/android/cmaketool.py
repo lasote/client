@@ -28,22 +28,25 @@ def install_android_toolchain(bii):
     bii.user_io.out.success('Run "bii configure -t" to disable it')
 
 
-def regenerate_android_settings_cmake(bii):
+def save_android_settings(bii, new_settings):
     '''
-    Regenerate arduino_settings.cmake from current settings
+    Save settings and regenerate arduino_settings.cmake from current settings. Cleans project if needed
     '''
-    current_settings = bii.hive_disk_image.settings
+    # Clean build if settings change
+    if new_settings.android != bii.hive_disk_image.settings.android:
+        bii.hive_disk_image.delete_build_folder()
 
-    # Now process settings
+    # Generate cmake content
     android_settings_cmake = load_resource(DEV_ANDROID_DIR, "cmake/android_settings.cmake")
-
-    settings = current_settings.android
-
-    settings_cmake = android_settings_cmake.format(abi=settings.abi,
-                                                   api_level=settings.api_level,
-                                                   ndk=settings.ndk,
-                                                   sdk=settings.sdk,
-                                                   ant=settings.ant
+    settings_cmake = android_settings_cmake.format(abi=new_settings.android.abi,
+                                                   api_level=new_settings.android.api_level,
+                                                   ndk=new_settings.android.ndk,
+                                                   sdk=new_settings.android.sdk,
+                                                   ant=new_settings.android.ant
                                                    )
+    # Save android_settings.cmake
     settings_path = os.path.join(bii.hive_disk_image.paths.bii, "android_settings.cmake")
     save_blob_if_modified(settings_path, Blob(settings_cmake))
+
+    # Save settings
+    bii.hive_disk_image.settings = new_settings

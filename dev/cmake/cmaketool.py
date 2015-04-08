@@ -8,6 +8,7 @@ from biicode.client.setups.finders.msvc_finder import command_with_vcvars
 from biicode.common.settings.osinfo import OSInfo
 from biicode.client.dev.hardware.arduino.cmaketool import regenerate_arduino_settings_cmake
 from biicode.common.utils.file_utils import load
+from biicode.client.dev.hardware.android.cmaketool import save_android_settings
 
 KEEP_CURRENT_TOOLCHAIN = "keep"
 
@@ -101,6 +102,8 @@ class CMakeTool(object):
         # (needed if manual change without arduino:settings)
         if name == "arduino":
             regenerate_arduino_settings_cmake(self.bii)
+        if name == "android":
+            save_android_settings(self.bii, settings)
 
         settings.cmake.toolchain = name
         self.hive_disk_image.settings = settings

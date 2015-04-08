@@ -1,12 +1,14 @@
 import argparse
-from biicode.client.dev.hardware.serial_monitor import monitor
 from biicode.common.exception import BiiException
-from biicode.client.workspace.hive_disk_image import HiveDiskImage
-from biicode.client.client_hive_manager import ClientHiveManager
 from biicode.client.dev.cpp.cpptoolchain import CPPToolChain
 from biicode.client.dev.hardware.android.android import Android
-from biicode.client.dev.hardware.android.cmaketool import install_android_toolchain,\
-    regenerate_android_settings_cmake
+from biicode.client.dev.hardware.android.cmaketool import (install_android_toolchain,
+                                                           save_android_settings)
+
+
+SUPPORTED_ANDROID_ABIS = ["armeabi-v7a", "armeabi", "armeabi-v7a with NEON",
+                          "armeabi-v7a with VFPV3", "armeabi-v6 with VFP", "arm64-v8a",
+                          "x86", "x86_64", "mips", "mips64"]
 
 
 class AndroidToolChain(CPPToolChain):
@@ -62,13 +64,17 @@ NOTE: Before building an Android project you should configure your project (just
         ndk_path = self.bii.user_io.request_string("Enter android NDK path", settings.android.ndk)
         ant_path = self.bii.user_io.request_string("Enter ANT tool exe path", settings.android.ant)
 
-        sdk_path = sdk_path.replace('\\', '/')
-        ndk_path = ndk_path.replace('\\', '/')
-        ant_path = ant_path.replace('\\', '/')
+        sdk_path = _sanitize_path(sdk_path)
+        ndk_path = _sanitize_path(ndk_path)
+        ant_path = _sanitize_path(ant_path)
 
         api_level = self.bii.user_io.request_string("Enter API level",
                                                     settings.android.api_level or 20)
-        abi = self.bii.user_io.request_string("Enter ABI", settings.android.abi or "x86")
+
+        abi = self.bii.user_io.request_option("Enter ABI",
+                                              default_option=settings.android.abi or "x86",
+                                              options=SUPPORTED_ANDROID_ABIS,
+                                              one_line_options=True)
 
         settings.android.sdk = sdk_path
         settings.android.ndk = ndk_path
@@ -76,6 +82,12 @@ NOTE: Before building an Android project you should configure your project (just
         settings.android.api_level = api_level
         settings.android.abi = abi
 
-        self.bii.hive_disk_image.settings = settings
+        save_android_settings(self.bii, settings)
+
         install_android_toolchain(self.bii)
-        regenerate_android_settings_cmake(self.bii)
+
+
+def _sanitize_path(path):
+    path = path.replace('\\', '/')
+    path = path[:-1] if path.endswith('/') else path
+    return path
