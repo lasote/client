@@ -71,7 +71,7 @@ NOTE: Before building an Android project you should configure your project (just
         api_level = self.bii.user_io.request_string("Enter API level",
                                                     settings.android.api_level or 20)
 
-        abi = self.bii.user_io.request_option("Enter ABI",
+        abi = self.bii.user_io.request_option("ABI",
                                               default_option=settings.android.abi or "x86",
                                               options=SUPPORTED_ANDROID_ABIS,
                                               one_line_options=True)
